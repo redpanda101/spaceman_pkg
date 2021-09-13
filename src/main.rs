@@ -2,49 +2,45 @@ mod spaceman_package;
 use spaceman_package::*;
 use std::env;
 
+#[derive(Copy, Clone)]
+struct Options(bool, bool, bool);
 
-
-struct SOptions([bool; 3]);
-
-fn calls(opts: SOptions, name: String) {
-    let flags = opts.0;
+fn calls(opts: Options, name: String) {
     let mut lang: Lang = Lang::C;
-    if flags[2] {
+    if opts.2 { //help flag
         help(opts)
     }
 
-    if flags[0] {
+    if opts.0 { //c++ flag
         lang = Lang::CPP;
     }
     
-    if flags[1] {
+    if opts.1 { //create flag
         SpacemanPackage::new(name, lang).create();
     }
 }
 
-fn help(opts: SOptions){
+fn help(opts: Options){
     println!("help message goes here");
 }
 
-fn main() -> std::result::Result<(), i32> {
-    let mut opts: SOptions = SOptions([false; 3]); //sets all flags off
+fn main() {
+    let mut opts = Options(false, false, false); //sets all flags off
     let mut name: String = String::new();
     let args: Vec<String> = env::args().collect();
 
     if args.len() == 1 {
-        opts.0[2] = true;
+        opts.2 = true;
     }
 
     for i in 1..args.len() {
         match args[i].as_str() {
-            "-n" | "new" | "--new" => opts.0[1] = true,
-            "-cpp" | "--lang:cpp" => opts.0[0] = true,
-            "-h" | "help" | "--help" => opts.0[2] = true,
+            "-n" | "new" | "--new" => opts.1 = true,
+            "-cpp" | "--lang:cpp" => opts.0 = true,
+            "-h" | "help" | "--help" => opts.2 = true,
             _ => name = args[i].clone(),
         }
     }
 
     calls(opts, name);
-
-    Ok(())
 }
