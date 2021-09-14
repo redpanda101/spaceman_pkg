@@ -8,7 +8,8 @@ struct Options(bool, bool, bool);
 fn calls(opts: Options, name: String) {
     let mut lang: Lang = Lang::C;
     if opts.2 { //help flag
-        help(opts)
+        help(opts);
+        return ();
     }
 
     if opts.0 { //c++ flag
@@ -21,7 +22,15 @@ fn calls(opts: Options, name: String) {
 }
 
 fn help(opts: Options){
-    println!("help message goes here");
+    if opts.0 {
+        println!("Flag switches the default language");
+    }
+    else if opts.1 {
+        println!("Flag creates a new project");
+    }
+    else if opts.2 {
+        println!("Spaceman Package Manager:\n-n | new | --new : creates a new project \n-cpp | --lang:cpp : changes language to c++\n-h | help | --help : prints this message");
+    }
 }
 
 fn main() {
