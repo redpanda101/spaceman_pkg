@@ -2,6 +2,8 @@ mod spaceman_package;
 use spaceman_package::*;
 use std::env;
 
+
+
 #[derive(Copy, Clone)]
 struct Options(bool, bool, bool);
 
@@ -52,4 +54,6 @@ fn main() {
     }
 
     calls(opts, name);
+
+    println!("done!")
 }
