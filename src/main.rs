@@ -5,7 +5,7 @@ mod spaceman_package;
 use spaceman_package::*;
 use std::env;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 struct Options(bool, bool, bool, bool, bool);
 
 fn calls(opts: Options, name: String) {
@@ -46,6 +46,8 @@ fn help(opts: Options) {
 }
 
 fn main() {
+    //TODO: add a more "user friendly" error message
+
     let mut opts = Options(false, false, false, false, false); //sets all flags off
     let mut name: String = String::new();
     let args: Vec<String> = env::args().collect();
@@ -63,6 +65,10 @@ fn main() {
             "-g" | "gen" | "--genetate" => opts.2 = true,
             _ => name = args[i].clone(),
         }
+    }
+
+    if opts == Options(false, false, false, false, false) {
+        opts.4 = true;
     }
 
     calls(opts, name);

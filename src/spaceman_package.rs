@@ -41,12 +41,11 @@ impl SpacemanPackage {
 
     /// ### `create(&self)`
     /// creates package on file system
-
     pub fn create(&self) {
         //file templates
-        let hello_world_c = "#include <stdio.h>\nint main() {\n    printf(\"hello world\");\n}";
+        let hello_world_c = "#include <stdio.h>\nint main() {\n    printf(\"hello world\\n\");\n}";
         let config_file = format!(
-            "[spaceman_package]\nname={}\ncompiler=gnu\ndeps=\nlanguage={}",
+            "[package]\nname={}\ncompiler=gnu\nlanguage={}\n; local dependancies for linking, unimplemented for now though\n; [deps]", //TODO: implement dependancy linking
             self.name,
             self.get_file_ext()
         );
@@ -65,13 +64,21 @@ impl SpacemanPackage {
             .expect("Could not write to config: ");
     }
 
+    /// ### `create_makefiles(&self)`
+    /// generates the makefiles in an already existing package
     pub fn create_makefiles(&self) {
+        //load config gile
         let config = ini!(format!("{}/spaceman.ini", self.name).as_str());
-        let s_config = config.get("spaceman_package").unwrap();
+        let s_config = config.get("package").unwrap();
+
+        //get package info
+        //note, the two unwraps are annoying but necessary
+        let pkg_name = s_config.get("name").unwrap().as_ref().unwrap();
         let compiler = s_config.get("compiler").unwrap().as_ref().unwrap();
-        //let deps = config.get("deps").unwrap();
+        //let deps = config.get("deps").unwrap(); //unimplemented
         let lang = s_config.get("language").unwrap().as_ref().unwrap();
 
+        //Get compiler to use
         let compiler_cmd = match compiler.as_str() {
             "gcc" | "g++" | "gnu" => {
                 if lang == ".c" {
@@ -94,18 +101,19 @@ impl SpacemanPackage {
         fs::write(
             format!("{}/build/Makefile", self.name),
             format!(//contents of makefile
-                "debug:\n\t{} -o {} -c ../src/main{}\nrelease:\n\t{} -o {} -c ../src/main{}\ninstall:\n\tmake release\n\tcp build/{} /usr/bin/{}",
+                "debug:\n\t{} -o {} -g ../src/main{}\nrelease:\n\t{} -o {} -O2 ../src/main{}\ninstall:\n\tmake release\n\tcp ./{} /usr/bin/{}",
                 compiler_cmd,
-                self.name,
-                self.get_file_ext(),
+                pkg_name,
+                lang,
                 compiler_cmd, //copied again for release
-                self.name,
-                self.get_file_ext(),
-                self.name, self.name
+                pkg_name,
+                lang,
+                pkg_name, pkg_name
             ),
         )
         .expect("Could not write Makefile: ");
     }
+
 
     pub fn build(&self) {
         self.create_makefiles();
