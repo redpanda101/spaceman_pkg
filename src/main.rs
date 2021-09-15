@@ -13,12 +13,12 @@ fn calls(opts: Options, name: String) {
     if opts.4 {
         //help flag
         help(opts);
-        return ();
+        return;
     }
 
     if opts.0 {
         //c++ flag
-        lang = Lang::CPP;
+        lang = Lang::Cpp;
     }
 
     if opts.1 {
@@ -56,14 +56,14 @@ fn main() {
         opts.4 = true;
     }
 
-    for i in 1..args.len() {
-        match args[i].as_str() {
+    for arg in args.iter().skip(1) {
+        match arg.as_str() {
             "-n" | "new" | "--new" => opts.1 = true,
             "-cpp" | "--lang:cpp" => opts.0 = true,
             "-h" | "help" | "--help" => opts.4 = true,
             "-b" | "build" | "--build" => opts.3 = true,
             "-g" | "gen" | "--genetate" => opts.2 = true,
-            _ => name = args[i].clone(),
+            _ => name = arg.to_string(),
         }
     }
 
